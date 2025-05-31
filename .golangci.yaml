@@ -1,0 +1,88 @@
+#
+# golangci-lint configuration
+# Reference: https://golangci-lint.run/usage/configuration
+#
+
+run:
+  timeout: 5m
+
+issues:
+  max-same-issues: 50
+
+  exclude-dirs:
+  - vendor$
+  - pkg/apis/generated
+  exclude-rules:
+  - text: 'shadow: declaration of "(err|ctx)" shadows declaration at'
+    linters: [ govet ]
+
+linters-settings:
+  errorlint:
+    errorf: false
+
+  gci:
+    sections: ["standard", "default", "prefix(github.com/Huang-Wei/25-kubecon-jp)"]
+
+  gocritic:
+    settings:
+      captLocal:
+        paramsOnly: false
+      underef:
+        skipRecvDeref: false
+
+  govet:
+    enable-all: true
+    disable:
+    - fieldalignment
+
+  perfsprint:
+    strconcat: false
+
+linters:
+  disable-all: true
+  enable:
+  - asasalint
+  - bodyclose
+  - canonicalheader
+  - copyloopvar
+  - dogsled
+  - dupl
+  - dupword
+  - durationcheck
+  - errcheck
+  - errorlint
+  - exhaustive
+  - gci
+  - gocheckcompilerdirectives
+  - gochecksumtype
+  - gocritic
+  - gocyclo
+  - gofmt
+  - goimports
+  - goprintffuncname
+  - gosec
+  - gosimple
+  - govet
+  - ineffassign
+  - loggercheck
+  - misspell
+  - mirror
+  - nilerr
+  - noctx
+  - nolintlint
+  - nosprintfhostport
+  - perfsprint
+  - predeclared
+  - promlinter
+  - reassign
+  - revive
+  - rowserrcheck
+  - spancheck
+  - staticcheck
+  - stylecheck
+  - tenv
+  - testifylint
+  - typecheck
+  - unconvert
+  - unused
+  - whitespace
