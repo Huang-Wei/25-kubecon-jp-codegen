@@ -7,20 +7,21 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/Huang-Wei/25-kubecon-jp-codegen/pkg/git"
 	"github.com/go-logr/logr"
 	"sigs.k8s.io/prow/pkg/config"
 	"sigs.k8s.io/prow/pkg/github"
 	"sigs.k8s.io/prow/pkg/pluginhelp"
+
+	"github.com/Huang-Wei/25-kubecon-jp-codegen/pkg/git"
 )
 
 const (
-	PluginName  = "kubecon-deployer"
-	deployLabel = "post-merge/deploy"
+	PluginName   = "kubecon-codegen"
+	codegenLabel = "post-merge/codegen"
 )
 
 var (
-	deployRe = regexp.MustCompile(`(?mi)^/deploy\s*$`)
+	codegenRe = regexp.MustCompile(`(?mi)^/codegen\s*$`)
 )
 
 var _ http.Handler = &Plugin{}
@@ -111,14 +112,14 @@ func (p *Plugin) handleIssueComment(l logr.Logger, ic github.IssueCommentEvent) 
 		github.PrLogField, num,
 	)
 
-	if !deployRe.MatchString(ic.Comment.Body) {
+	if !codegenRe.MatchString(ic.Comment.Body) {
 		return nil
 	}
-	l.Info("🚀 Requested deployment.")
+	l.Info("🚀 Requested a downstream codegen.")
 
-	// add the label and let PR handler process the deployment request
-	if err := p.gitWorker.AddLabel(org, repo, num, deployLabel); err != nil {
-		return fmt.Errorf("failed to add label %q: %w", deployLabel, err)
+	// Add the label and let PR handler process the codegen request.
+	if err := p.gitWorker.AddLabel(org, repo, num, codegenLabel); err != nil {
+		return fmt.Errorf("failed to add label %q: %w", codegenLabel, err)
 	}
 	return nil
 }
