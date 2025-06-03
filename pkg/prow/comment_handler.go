@@ -34,7 +34,7 @@ func (p *Plugin) handleIssueComment(l logr.Logger, ic github.IssueCommentEvent) 
 		if pr.MergeSHA == nil {
 			return nil
 		}
-		upstreamRepo := &git.GitHubRepo{
+		upstreamRepo := &git.GHRepo{
 			Org:               org,
 			Name:              repo,
 			PullRequestNumber: num,

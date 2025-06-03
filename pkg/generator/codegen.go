@@ -17,6 +17,6 @@ func NewCodegen() *Codegen {
 }
 
 // FanOutArtifacts render the eventual artifacts based on pre-processed Tenant and Infra tuples.
-func (cg *Codegen) FanOutArtifacts(ctx context.Context, dir string) error {
+func (cg *Codegen) FanOutArtifacts(_ context.Context, _ string) error {
 	return nil
 }

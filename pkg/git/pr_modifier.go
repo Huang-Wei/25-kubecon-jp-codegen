@@ -15,7 +15,7 @@ func (d DeployPRModifier) TearDown() bool {
 	return false
 }
 
-func (d DeployPRModifier) NoopMsg(repo GitHubRepo) string {
+func (d DeployPRModifier) NoopMsg(repo GHRepo) string {
 	return fmt.Sprintf(noopMsgTemplate, "", repo.Org, repo.Name)
 }
 
@@ -41,7 +41,7 @@ func (d DryrunPRModifier) TearDown() bool {
 	return true
 }
 
-func (d DryrunPRModifier) NoopMsg(repo GitHubRepo) string {
+func (d DryrunPRModifier) NoopMsg(repo GHRepo) string {
 	return fmt.Sprintf(noopMsgTemplate, "[DRYRUN] ", repo.Org, repo.Name)
 }
 

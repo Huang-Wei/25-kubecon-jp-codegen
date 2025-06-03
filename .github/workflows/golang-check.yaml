@@ -15,7 +15,7 @@ env:
   GOPRIVATE: "github.com/Huang-Wei/25-kubecon-jp"
 
 jobs:
-  golangci:
+  golang-check:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code

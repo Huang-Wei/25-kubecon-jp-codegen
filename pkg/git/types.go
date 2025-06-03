@@ -4,7 +4,7 @@ import (
 	"sigs.k8s.io/prow/pkg/git/v2"
 )
 
-type GitHubRepo struct {
+type GHRepo struct {
 	Org               string
 	Name              string
 	PullRequestNumber int

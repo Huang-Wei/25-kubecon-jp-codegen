@@ -60,7 +60,7 @@ func (p *Plugin) handlePullRequest(l logr.Logger, pre github.PullRequestEvent) e
 	p.Lock()
 	defer p.Unlock()
 
-	upstreamRepo := &git.GitHubRepo{
+	upstreamRepo := &git.GHRepo{
 		Org:               org,
 		Name:              repo,
 		PullRequestNumber: num,
@@ -70,7 +70,7 @@ func (p *Plugin) handlePullRequest(l logr.Logger, pre github.PullRequestEvent) e
 	return p.createPullRequest(upstreamRepo, git.NewDeployPRModifier())
 }
 
-func (p *Plugin) createPullRequest(upstreamRepo *git.GitHubRepo, prModifier git.PullRequestModifier) error {
+func (p *Plugin) createPullRequest(upstreamRepo *git.GHRepo, prModifier git.PullRequestModifier) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
