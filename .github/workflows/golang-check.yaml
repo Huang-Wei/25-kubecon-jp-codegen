@@ -12,16 +12,21 @@ on:
 
 env:
   GOLANGCI_VERSION: "1.64.8"
+  GOPRIVATE: "github.com/Huang-Wei/25-kubecon-jp"
 
 jobs:
   golangci:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
         go-version-file: go.mod
+    - name: Configure Git for private modules
+      run: |
+        git config --global url."https://${{ secrets.GH_PAT }}:@github.com/".insteadOf "https://github.com/"
     - name: Run tests
       run: go test ./...
     - name: Run golangci-lint
