@@ -12,6 +12,7 @@ issues:
   exclude-dirs:
   - vendor$
   - pkg/apis/generated
+  - ".*go/generated.*"
   exclude-rules:
   - text: 'shadow: declaration of "(err|ctx)" shadows declaration at'
     linters: [ govet ]

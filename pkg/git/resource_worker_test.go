@@ -43,8 +43,8 @@ func requireBinaries(t *testing.T, binaries ...string) {
 }
 
 func Test_parseTenants(t *testing.T) {
-	// LoadFromPath() requires 'pkl' and 'pkl-gen-go' to be present on PATH.
-	requireBinaries(t, "pkl", "pkl-gen-go")
+	// LoadFromPath() requires 'pkl' to be present on PATH.
+	requireBinaries(t, "pkl")
 
 	ctx := context.Background()
 

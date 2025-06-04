@@ -15,11 +15,17 @@ env:
   GOPRIVATE: "github.com/Huang-Wei/25-kubecon-jp"
 
 jobs:
-  golang-check:
+  go-test:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    - name: Install pkl
+      run: |
+        PKL_VERSION="0.28.2"
+        curl -L -o pkl "https://github.com/apple/pkl/releases/download/${PKL_VERSION}/pkl-linux-amd64"
+        chmod +x pkl
+        sudo mv pkl /usr/local/bin/
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
@@ -28,7 +34,16 @@ jobs:
       run: |
         git config --global url."https://${{ secrets.GH_PAT }}:@github.com/".insteadOf "https://github.com/"
     - name: Run tests
-      run: go test ./...
+      run: go test -v ./...
+  golangci-lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: go.mod
     - name: Run golangci-lint
       uses: golangci/golangci-lint-action@v6
       with:
