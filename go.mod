@@ -3,9 +3,12 @@ module github.com/Huang-Wei/25-kubecon-jp-codegen
 go 1.23.8
 
 require (
+	github.com/Huang-Wei/25-kubecon-jp v0.0.1
 	github.com/bombsimon/logrusr/v4 v4.1.0
 	github.com/go-logr/logr v1.4.2
 	github.com/sirupsen/logrus v1.9.3
+	github.com/spf13/afero v1.14.0
+	k8s.io/apimachinery v0.30.1
 	sigs.k8s.io/prow v0.0.0-20250522165235-9b3f5facabfa
 )
 
@@ -21,6 +24,7 @@ require (
 	github.com/GoogleCloudPlatform/testgrid v0.0.123 // indirect
 	github.com/andygrunwald/go-jira v1.14.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
+	github.com/apple/pkl-go v0.10.0 // indirect
 	github.com/aws/aws-sdk-go v1.55.5 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.32.4 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.6 // indirect
@@ -112,6 +116,8 @@ require (
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/tektoncd/pipeline v0.61.0 // indirect
 	github.com/trivago/tgo v1.0.7 // indirect
+	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
+	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.53.0 // indirect
@@ -147,7 +153,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/api v0.30.1 // indirect
-	k8s.io/apimachinery v0.30.1 // indirect
 	k8s.io/client-go v0.30.1 // indirect
 	k8s.io/klog/v2 v2.120.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20240228011516-70dd3763d340 // indirect

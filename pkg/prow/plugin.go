@@ -16,12 +16,12 @@ import (
 )
 
 const (
-	PluginName   = "kubecon-codegen"
-	codegenLabel = "post-merge/codegen"
+	PluginName = "kubecon-codegen"
 )
 
 var (
-	codegenRe = regexp.MustCompile(`(?mi)^/codegen\s*$`)
+	codegenRe       = regexp.MustCompile(`(?mi)^/codegen\s*$`)
+	codegenDryrunRe = regexp.MustCompile(`(?mi)^/codegen-dryrun\s*$`)
 )
 
 var _ http.Handler = &Plugin{}
@@ -92,39 +92,6 @@ func (p *Plugin) handleEvent(eventType, eventGUID string, payload []byte) error 
 	default:
 		logger.Info("skipping event")
 	}
-	return nil
-}
-
-func (p *Plugin) handleIssueComment(l logr.Logger, ic github.IssueCommentEvent) error {
-	// Only consider new comments in PRs.
-	if !ic.Issue.IsPullRequest() || ic.Action != github.IssueCommentActionCreated {
-		return nil
-	}
-
-	org := ic.Repo.Owner.Login
-	repo := ic.Repo.Name
-	num := ic.Issue.Number
-
-	// Do not create a new logger, its fields are re-used by the caller in case of errors
-	l = l.WithValues(
-		github.OrgLogField, org,
-		github.RepoLogField, repo,
-		github.PrLogField, num,
-	)
-
-	if !codegenRe.MatchString(ic.Comment.Body) {
-		return nil
-	}
-	l.Info("🚀 Requested a downstream codegen.")
-
-	// Add the label and let PR handler process the codegen request.
-	if err := p.gitWorker.AddLabel(org, repo, num, codegenLabel); err != nil {
-		return fmt.Errorf("failed to add label %q: %w", codegenLabel, err)
-	}
-	return nil
-}
-
-func (p *Plugin) handlePullRequest(_ logr.Logger, _ github.PullRequestEvent) error {
 	return nil
 }
 

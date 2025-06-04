@@ -1,0 +1,14 @@
+import ".../schema/tenant/ResourceConfig.pkl"
+
+kubernetes = new ResourceConfig.Kubernetes {
+  namespaces = new {
+    "foo1"
+    "foo2"
+  }
+}
+
+buckets = new Listing<ResourceConfig.Bucket> {
+  new {
+    name = "foo-bucket-"
+  }
+}
