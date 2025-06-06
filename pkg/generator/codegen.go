@@ -3,7 +3,6 @@ package generator
 import (
 	"bufio"
 	"context"
-	_ "embed"
 	"fmt"
 	"os"
 	"path"
@@ -106,13 +105,13 @@ func (cg *Codegen) generateBucket(
 	}
 
 	// Render bucket.yaml.tpl
-	if out, err := renderBucket(bucket, account); err != nil {
+	out, err := renderBucket(bucket, account)
+	if err != nil {
 		return fmt.Errorf("failed to render buckets template: %w", err)
-	} else {
-		outputPath = filepath.Join(outputPath, fmt.Sprintf("%s-bucket.yaml", bucket.Name))
-		if err := afero.WriteFile(cg.fs, outputPath, []byte(out), 0755); err != nil {
-			return fmt.Errorf("failed to write file %s: %w", outputPath, err)
-		}
+	}
+	outputPath = filepath.Join(outputPath, fmt.Sprintf("%s-bucket.yaml", bucket.Name))
+	if err := afero.WriteFile(cg.fs, outputPath, []byte(out), 0755); err != nil {
+		return fmt.Errorf("failed to write file %s: %w", outputPath, err)
 	}
 
 	return nil
