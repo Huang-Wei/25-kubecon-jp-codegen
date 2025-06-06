@@ -75,13 +75,20 @@ func (p *Plugin) createPullRequest(upstreamRepo *git.GHRepo, prModifier git.Pull
 	defer cancel()
 
 	// Pre-process the user input in the upstream repo.
-	// TODO: work on the real codegen
-	_, err := p.gitWorker.FetchUpstreamConfigs(ctx, upstreamRepo)
+	accounts, tenantTuples, err := p.gitWorker.FetchUpstreamConfigs(ctx, upstreamRepo)
 	if err != nil {
 		return err
 	}
 
 	// Create a downstream codegen PR.
 	cg := generator.NewCodegen()
-	return p.gitWorker.CreatePullRequest(ctx, upstreamRepo, prModifier, KubeConCodegenRepoName, cg.FanOutArtifacts)
+	return p.gitWorker.CreatePullRequest(
+		ctx,
+		upstreamRepo,
+		prModifier,
+		KubeConCodegenRepoName,
+		accounts,
+		tenantTuples,
+		cg.FanOutArtifacts,
+	)
 }

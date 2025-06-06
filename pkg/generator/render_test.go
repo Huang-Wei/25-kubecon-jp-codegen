@@ -1,0 +1,73 @@
+package generator
+
+import (
+	"testing"
+
+	"github.com/Huang-Wei/25-kubecon-jp/go/generated/infra/account"
+	"github.com/Huang-Wei/25-kubecon-jp/go/generated/tenant/resource"
+	"github.com/google/go-cmp/cmp"
+)
+
+func Test_renderBucket(t *testing.T) {
+	tests := []struct {
+		name    string
+		bucket  *resource.Bucket
+		account *account.Account
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "AWS bucket",
+			account: &account.Account{
+				CloudProvider: "aws",
+			},
+			bucket: &resource.Bucket{
+				Name:   "foo",
+				Region: "us-east-1",
+			},
+			want: `apiVersion: s3.aws.upbound.io/v1beta1
+kind: Bucket
+metadata:
+  name: foo
+spec:
+  forProvider:
+    region: us-east-1
+  providerConfigRef:
+    name: default
+`,
+		},
+		{
+			name: "GCP bucket",
+			account: &account.Account{
+				CloudProvider: "gcp",
+			},
+			bucket: &resource.Bucket{
+				Name:   "bar",
+				Region: "us-east-1",
+			},
+			want: `apiVersion: storage.gcp.upbound.io/v1beta1
+kind: Bucket
+metadata:
+  name: bar
+spec:
+  forProvider:
+    location: us-east1
+  providerConfigRef:
+    name: default
+`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := renderBucket(tt.bucket, tt.account)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("renderBucket() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("renderBucket() unexpected diff (-want +got):\n%s", diff)
+			}
+		})
+	}
+}

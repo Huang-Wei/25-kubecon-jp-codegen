@@ -25,7 +25,7 @@ func (p *Plugin) handleIssueComment(l logr.Logger, ic github.IssueCommentEvent) 
 		github.PrLogField, num,
 	)
 
-	// If the command is /deploy-dryrun, create a downstream PR and close it immediately.
+	// If the command is /codegen-dryrun, create a downstream PR and close it immediately.
 	if codegenDryrunRe.MatchString(ic.Comment.Body) {
 		pr, err := p.gitWorker.GetPullRequest(org, repo, num)
 		if err != nil {
