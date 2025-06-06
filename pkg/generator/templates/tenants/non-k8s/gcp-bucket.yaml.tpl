@@ -1,0 +1,9 @@
+apiVersion: storage.gcp.upbound.io/v1beta1
+kind: Bucket
+metadata:
+  name: {{ .Name }}
+spec:
+  forProvider:
+    location: {{ .Region | toGCPRegion }}
+  providerConfigRef:
+    name: default

@@ -16,6 +16,7 @@ import (
 	"sigs.k8s.io/prow/pkg/github"
 
 	"github.com/Huang-Wei/25-kubecon-jp-codegen/pkg/internal"
+	"github.com/Huang-Wei/25-kubecon-jp/go/generated/infra/account"
 	"github.com/Huang-Wei/25-kubecon-jp/go/generated/tenant/resource"
 )
 
@@ -41,8 +42,16 @@ func (r *ResourceWorker) GetPullRequest(org, repo string, number int) (*github.P
 	return r.ghc.GetPullRequest(org, repo, number)
 }
 
-func (r *ResourceWorker) CreatePullRequest(ctx context.Context, upstreamRepo *GHRepo, prModifier PullRequestModifier, s string, codegenFunc CodegenFunc) error {
-	downstreamRepo, err := r.CreateDownstreamRepo(s, upstreamRepo)
+func (r *ResourceWorker) CreatePullRequest(
+	ctx context.Context,
+	upstreamRepo *GHRepo,
+	prModifier PullRequestModifier,
+	repo string,
+	accounts []*account.Account,
+	tenantTuples []*internal.TenantTuple,
+	codegenFunc CodegenFunc,
+) error {
+	downstreamRepo, err := r.CreateDownstreamRepo(repo, upstreamRepo)
 	if err != nil {
 		return err
 	}
@@ -64,7 +73,7 @@ func (r *ResourceWorker) CreatePullRequest(ctx context.Context, upstreamRepo *GH
 
 	// PR generation logic starts.
 	startPRGen := time.Now()
-	if err := codegenFunc(ctx, dstDir /*, tenantTuples, clusterTuples*/); err != nil {
+	if err := codegenFunc(ctx, dstDir, accounts, tenantTuples); err != nil {
 		return fmt.Errorf("failed to generate PR: %w", err)
 	}
 	r.logger.WithValues("duration", time.Since(startPRGen)).Info("PR generation completed.")
@@ -90,28 +99,57 @@ func (r *ResourceWorker) Logger() logr.Logger {
 }
 
 // FetchUpstreamConfigs fetches and parses the user input configured in upstream repo.
-func (r *ResourceWorker) FetchUpstreamConfigs(ctx context.Context, upstreamRepo *GHRepo) ([]*internal.TenantTuple, error) {
+func (r *ResourceWorker) FetchUpstreamConfigs(ctx context.Context, upstreamRepo *GHRepo) ([]*account.Account, []*internal.TenantTuple, error) {
 	_, err := r.ghc.GetPullRequestChanges(upstreamRepo.Org, upstreamRepo.Name, upstreamRepo.PullRequestNumber)
 	if err != nil {
-		return nil, fmt.Errorf("cannot list PR changes: %w", err)
+		return nil, nil, fmt.Errorf("cannot list PR changes: %w", err)
 	}
 
 	uRepoClient, err := r.gc.ClientFor(upstreamRepo.Org, upstreamRepo.Name)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if err := uRepoClient.Checkout(upstreamRepo.MergeSHA); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if err := uRepoClient.CheckoutNewBranch(fmt.Sprintf("src-%v", upstreamRepo.PullRequestNumber)); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	uDir := uRepoClient.Directory()
 
-	// TODO: Iterate upstream repo's clusters/ folder.
+	// Parse infra/account.pkl
+	accounts, err := parseAccounts(ctx, afero.NewOsFs(), filepath.Join(uDir, "infra"))
+	if err != nil {
+		return nil, nil, err
+	}
 
 	// Iterate upstream repo's `tenants/` folder.
-	return parseTenants(ctx, afero.NewOsFs(), filepath.Join(uDir, "tenants"))
+	tenantTuples, err := parseTenants(ctx, afero.NewOsFs(), filepath.Join(uDir, "tenants"))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return accounts, tenantTuples, nil
+}
+
+// parseAccounts parses `infra/account.pkl` and return a list of Account.
+func parseAccounts(ctx context.Context, fs afero.Fs, rootPath string) ([]*account.Account, error) {
+	accountPklPath := filepath.Join(rootPath, "account.pkl")
+	// Check if file exists
+	exists, err := afero.Exists(fs, accountPklPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check if file exists %s: %w", accountPklPath, err)
+	}
+	if !exists {
+		return nil, fmt.Errorf("account.pkl not found at %s", accountPklPath)
+	}
+
+	accountConfig, err := account.LoadFromPath(ctx, accountPklPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to load account from %s: %w", accountPklPath, err)
+	}
+
+	return accountConfig.Accounts, nil
 }
 
 // parseTenants parses the `tenants/` folder to read resource.pkl and convert into tenant tuples.
