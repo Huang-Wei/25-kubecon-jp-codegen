@@ -12,7 +12,6 @@ issues:
   exclude-dirs:
   - vendor$
   - pkg/apis/generated
-  - github.com/Huang-Wei/25-kubecon-jp/go/generated
   exclude-rules:
   - text: 'shadow: declaration of "(err|ctx)" shadows declaration at'
     linters: [ govet ]
