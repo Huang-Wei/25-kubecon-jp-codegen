@@ -19,6 +19,10 @@ var awsBucketTpl = template.Must(template.New("aws-bucket").Parse(embedAWSBucket
 var embedGCPBucket string
 var gcpBucketTpl = template.Must(template.New("gcp-bucket").Funcs(customFuncMap()).Parse(embedGCPBucket))
 
+//go:embed templates/tenants/non-k8s/kustomization.yaml.tpl
+var embedKustomization string
+var kustomizationTpl = template.Must(template.New("kustomization").Parse(embedKustomization))
+
 func customFuncMap() template.FuncMap {
 	return template.FuncMap{
 		"toGCPRegion": toGCPRegion,
@@ -39,6 +43,22 @@ func renderBucket(bucket *resource.Bucket, account *account.Account) (string, er
 
 	buf := bytes.NewBuffer(nil)
 	err := tpl.Execute(buf, bucket)
+	if err != nil {
+		return "", fmt.Errorf("rendering error: %w", err)
+	}
+
+	return buf.String(), nil
+}
+
+func renderKustomization(namePrefix string, yamlFiles []string) (string, error) {
+	buf := bytes.NewBuffer(nil)
+	err := kustomizationTpl.Execute(buf, struct {
+		YAMLFiles  []string
+		NamePrefix string
+	}{
+		YAMLFiles:  yamlFiles,
+		NamePrefix: namePrefix,
+	})
 	if err != nil {
 		return "", fmt.Errorf("rendering error: %w", err)
 	}
