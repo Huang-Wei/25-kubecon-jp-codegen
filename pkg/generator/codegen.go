@@ -19,6 +19,10 @@ import (
 	"github.com/Huang-Wei/25-kubecon-jp/go/generated/tenant/selector/operator"
 )
 
+const (
+	TenantsOutputDir = "_output/tenants"
+)
+
 type Codegen struct {
 	fs afero.Fs
 }
@@ -31,7 +35,7 @@ func NewCodegen() *Codegen {
 
 // FanOutArtifacts render the eventual artifacts based on pre-processed Tenant and Infra tuples.
 func (cg *Codegen) FanOutArtifacts(_ context.Context, dstDir string, accounts []*account.Account, tenantTuples []*internal.TenantTuple) error {
-	tenantsDir := path.Join(dstDir, "_output", "tenants")
+	tenantsDir := path.Join(dstDir, TenantsOutputDir)
 	// Delete the files that were auto-generated.
 	_ = deleteGeneratedFiles(cg.fs, tenantsDir)
 
@@ -46,6 +50,12 @@ func (cg *Codegen) FanOutArtifacts(_ context.Context, dstDir string, accounts []
 		}
 		// TODO: deal with other fields.
 	}
+
+	// Generate kustomization.yaml to include all auto-generated files.
+	if err := generateKustomizationFiles(cg.fs, tenantsDir); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -65,7 +75,7 @@ func (cg *Codegen) iterateBuckets(tenantsDir string, accounts []*account.Account
 			}
 
 			// Start rendering the bucket towards the matched account.
-			regionPath := path.Join(tenantsDir, "{{.CloudProvider}}-{{.AccountID}}/{{.RegionName}}")
+			regionPath := path.Join(tenantsDir, tuple.TenantID, "{{.CloudProvider}}-{{.AccountID}}/{{.RegionName}}")
 			if err := cg.generateBucket(bucket, act, regionPath); err != nil {
 				return err
 			}
@@ -75,8 +85,67 @@ func (cg *Codegen) iterateBuckets(tenantsDir string, accounts []*account.Account
 	return nil
 }
 
-// PathContext represents the context for generating directory paths
-type PathContext struct {
+func generateKustomizationFiles(fs afero.Fs, dir string) error {
+	return afero.Walk(fs, dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			return nil
+		}
+		return generateOneKustomizationFile(fs, path)
+	})
+}
+
+func generateOneKustomizationFile(fs afero.Fs, dir string) error {
+	entries, err := afero.ReadDir(fs, dir)
+	if err != nil {
+		return err
+	}
+
+	var yamlFiles []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+
+		filename := entry.Name()
+		// Include .yaml files, but exclude kustomization.yaml.
+		if strings.HasSuffix(filename, ".yaml") && filename != "kustomization.yaml" {
+			yamlFiles = append(yamlFiles, filename)
+		}
+	}
+
+	if len(yamlFiles) == 0 {
+		return nil
+	}
+
+	// Strip prefix string ends with TenantsOutputDir
+	idx := strings.Index(dir, TenantsOutputDir)
+	if idx == -1 {
+		return fmt.Errorf("[internal error] '%s' doesn't look like a tenant directory", dir)
+	}
+	namePrefix := dir[idx+len(TenantsOutputDir):]
+	// Remove extra leading '/':
+	for len(namePrefix) > 0 && namePrefix[0] == '/' {
+		namePrefix = namePrefix[1:]
+	}
+	namePrefix = strings.Join(strings.Split(namePrefix, "/"), "-")
+	out, err := renderKustomization(namePrefix, yamlFiles)
+	if err != nil {
+		return err
+	}
+	// Write <provider>-bucket.yaml
+	outputPath := filepath.Join(dir, "kustomization.yaml")
+	if err := afero.WriteFile(fs, outputPath, []byte(out), 0755); err != nil {
+		return fmt.Errorf("failed to write file %s: %w", outputPath, err)
+	}
+
+	return nil
+}
+
+// pathContext represents the context for generating directory paths
+type pathContext struct {
 	CloudProvider string
 	AccountID     string
 	RegionName    string
@@ -89,7 +158,7 @@ func (cg *Codegen) generateBucket(
 	templatePath string,
 ) error {
 	// Generate the directory path using templating
-	pathCtx := PathContext{
+	pathCtx := pathContext{
 		CloudProvider: account.CloudProvider,
 		AccountID:     account.AccountID,
 		RegionName:    bucket.Region,
@@ -104,12 +173,13 @@ func (cg *Codegen) generateBucket(
 		return fmt.Errorf("failed to create directory %s: %w", outputPath, err)
 	}
 
-	// Render bucket.yaml.tpl
+	// Render <provider>-bucket.yaml.tpl
 	out, err := renderBucket(bucket, account)
 	if err != nil {
 		return fmt.Errorf("failed to render buckets template: %w", err)
 	}
-	outputPath = filepath.Join(outputPath, fmt.Sprintf("%s-bucket.yaml", bucket.Name))
+	// Write bucket yaml
+	outputPath = filepath.Join(outputPath, fmt.Sprintf("bucket-%s.yaml", bucket.Name))
 	if err := afero.WriteFile(cg.fs, outputPath, []byte(out), 0755); err != nil {
 		return fmt.Errorf("failed to write file %s: %w", outputPath, err)
 	}
@@ -118,7 +188,7 @@ func (cg *Codegen) generateBucket(
 }
 
 // generateOutputPath generates the output directory path using Go templating
-func (cg *Codegen) generateOutputPath(pathCtx PathContext, templatesPath string) (string, error) {
+func (cg *Codegen) generateOutputPath(pathCtx pathContext, templatesPath string) (string, error) {
 	tmpl, err := template.New("path").Parse(templatesPath)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse path template: %w", err)
@@ -196,6 +266,8 @@ func contains(slice []string, item string) bool {
 	return false
 }
 
+// delete all previously-generated files that start with
+// # Code generated
 func deleteGeneratedFiles(fs afero.Fs, dstDir string) error {
 	return afero.Walk(fs, dstDir, func(path string, _ os.FileInfo, err error) error {
 		if err != nil {
