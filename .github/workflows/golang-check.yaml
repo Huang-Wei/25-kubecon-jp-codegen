@@ -12,7 +12,6 @@ on:
 
 env:
   GOLANGCI_VERSION: "1.64.8"
-  GOPRIVATE: "github.com/Huang-Wei/25-kubecon-jp"
 
 jobs:
   go-test:
@@ -30,9 +29,6 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version-file: go.mod
-    - name: Configure Git for private modules
-      run: |
-        git config --global url."https://${{ secrets.GH_PAT }}:@github.com/".insteadOf "https://github.com/"
     - name: Run tests
       run: go test -v ./...
   golangci-lint:
@@ -48,5 +44,4 @@ jobs:
       uses: golangci/golangci-lint-action@v6
       with:
         version: v${{ env.GOLANGCI_VERSION }}
-        skip-cache: true
         args: --timeout=5m --config=.golangci.yaml --new --fix
