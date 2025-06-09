@@ -316,9 +316,11 @@ func (r *ResourceWorker) CommitChanges(dstDir string, downstreamBranch *Downstre
 		return 0, utilerrors.NewAggregate([]error{err, r.ghc.CreateComment(upstreamRepo.Org, upstreamRepo.Name, upstreamRepo.PullRequestNumber, resp)})
 	}
 	// Last step to create the PR.
-	title := fmt.Sprintf("%s🇯🇵 25 KubeCon CodeGen from %s/%s#%v", prModifier.TitleTag(), upstreamRepo.Org, upstreamRepo.Name, upstreamRepo.PullRequestNumber)
+	from := fmt.Sprintf("%s/%s/pull/%v", upstreamRepo.Org, upstreamRepo.Name, upstreamRepo.PullRequestNumber)
+	title := fmt.Sprintf("%s🇯🇵 25 KubeCon CodeGen from %s", prModifier.TitleTag(), from)
 	head := fmt.Sprintf("%s:%s", r.botUser.Login, downstreamBranch.NewBranch)
-	createdNum, err := r.ghc.CreatePullRequest(downstreamRepo.Org, downstreamRepo.Name, title, "This is an auto-generated PR via prow bot.", head, downstreamBranch.TargetBranch, true)
+	createdNum, err := r.ghc.CreatePullRequest(downstreamRepo.Org, downstreamRepo.Name, title,
+		fmt.Sprintf("This is an auto-generated PR via prow bot from %s.", from), head, downstreamBranch.TargetBranch, true)
 	if err != nil {
 		r.logger.Error(err, "failed to create new pull request")
 		resp := fmt.Sprintf("new pull request could not be created: %v", err)
