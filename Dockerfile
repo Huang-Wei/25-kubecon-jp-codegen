@@ -40,8 +40,8 @@ RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -ldflags="-w -s" -o
 # Final stage
 FROM alpine:latest
 
-# Install runtime dependencies (just git and ca-certificates)
-RUN apk add --no-cache ca-certificates git
+# Install runtime dependencies
+RUN apk add --no-cache ca-certificates git gcompat
 
 # Copy the binary from builder stage
 COPY --from=builder /app/codegen /usr/local/bin/codegen
