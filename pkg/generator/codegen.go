@@ -66,7 +66,7 @@ func (cg *Codegen) iterateBuckets(tenantsDir string, accounts []*account.Account
 
 	for _, bucket := range tuple.ResourceConfig.Buckets {
 		for _, act := range accounts {
-			// Bypass non-matching account.
+			// Env is an implicit matching criteria.
 			if !envMatches(act.Tags, tuple) {
 				continue
 			}
@@ -228,19 +228,14 @@ func requirementMatches(tags map[string]string, req *selector.Requirment) bool {
 
 	switch req.Operator {
 	case operator.In:
-		// Key must exist and its value must be in the values array
-		if !exists {
-			return false
-		}
-		return contains(req.Values, tagValue)
+		// If key doesn't exist, return true
+		// Otherwise, its value must be in the values array
+		return !exists || contains(req.Values, tagValue)
 
 	case operator.NotIn:
-		// If key doesn't exist, requirement is satisfied
-		// If key exists, its value must not be in the values array
-		if !exists {
-			return true
-		}
-		return !contains(req.Values, tagValue)
+		// If key doesn't exist, return true
+		// Otherwise, its value must not be in the values array
+		return !exists || !contains(req.Values, tagValue)
 
 	case operator.Exists:
 		// Key must exist (regardless of value)
