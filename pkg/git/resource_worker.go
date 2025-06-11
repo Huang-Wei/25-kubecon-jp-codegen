@@ -22,7 +22,7 @@ import (
 
 var (
 	checkoutBranchFmt = "auto-checkout-%d-to-%s%s"
-	GitHubURL         = "https://github.com/"
+	GitHubURL         = "https://github.com"
 
 	ErrNothingToCommit          = errors.New("nothing to commit")
 	ErrPullRequestAlreadyExists = errors.New("pull request already exists")
