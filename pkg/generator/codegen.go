@@ -264,9 +264,13 @@ func contains(slice []string, item string) bool {
 // delete all previously-generated files that start with
 // # Code generated
 func deleteGeneratedFiles(fs afero.Fs, dstDir string) error {
-	return afero.Walk(fs, dstDir, func(path string, _ os.FileInfo, err error) error {
+	return afero.Walk(fs, dstDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
+		}
+
+		if info.IsDir() {
+			return nil
 		}
 
 		file, err := fs.Open(path)
