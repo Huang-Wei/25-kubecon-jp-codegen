@@ -2,7 +2,7 @@
 apiVersion: s3.aws.upbound.io/v1beta1
 kind: Bucket
 metadata:
-  name: foo
+  name: y-temp
 spec:
   forProvider:
     region: us-west-2
