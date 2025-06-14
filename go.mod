@@ -3,7 +3,7 @@ module github.com/Huang-Wei/25-kubecon-jp-codegen
 go 1.23.8
 
 require (
-	github.com/Huang-Wei/25-kubecon-jp v0.0.2
+	github.com/Huang-Wei/25-kubecon-jp v0.0.4
 	github.com/bombsimon/logrusr/v4 v4.1.0
 	github.com/go-logr/logr v1.4.2
 	github.com/google/go-cmp v0.7.0

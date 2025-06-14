@@ -13,10 +13,11 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/Huang-Wei/25-kubecon-jp-codegen/pkg/internal"
+	"github.com/Huang-Wei/25-kubecon-jp/go/generated/common/selector"
+	"github.com/Huang-Wei/25-kubecon-jp/go/generated/common/selector/key"
+	"github.com/Huang-Wei/25-kubecon-jp/go/generated/common/selector/operator"
 	"github.com/Huang-Wei/25-kubecon-jp/go/generated/infra/account"
 	"github.com/Huang-Wei/25-kubecon-jp/go/generated/tenant/resource"
-	"github.com/Huang-Wei/25-kubecon-jp/go/generated/tenant/selector"
-	"github.com/Huang-Wei/25-kubecon-jp/go/generated/tenant/selector/operator"
 )
 
 const (
@@ -202,12 +203,12 @@ func (cg *Codegen) generateOutputPath(pathCtx pathContext, templatesPath string)
 	return pathBuilder.String(), nil
 }
 
-func envMatches(accountTags map[string]string, tuple *internal.TenantTuple) bool {
+func envMatches(accountTags map[key.Key]string, tuple *internal.TenantTuple) bool {
 	env := accountTags["env"]
 	return env == "" || env == tuple.Env
 }
 
-func selectorMatches(accountTags map[string]string, selector []*selector.Requirment) bool {
+func selectorMatches(accountTags map[key.Key]string, selector []*selector.Requirment) bool {
 	if len(selector) == 0 {
 		return true
 	}
@@ -222,9 +223,8 @@ func selectorMatches(accountTags map[string]string, selector []*selector.Requirm
 	return true
 }
 
-func requirementMatches(tags map[string]string, req *selector.Requirment) bool {
-	keyStr := string(req.Key) // Convert key.Key to string
-	tagValue, exists := tags[keyStr]
+func requirementMatches(tags map[key.Key]string, req *selector.Requirment) bool {
+	tagValue, exists := tags[req.Key]
 
 	switch req.Operator {
 	case operator.In:

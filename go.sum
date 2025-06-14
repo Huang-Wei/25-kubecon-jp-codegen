@@ -59,8 +59,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/GoogleCloudPlatform/testgrid v0.0.123 h1:S5LE2LjkPsUlyt7blkIgwajiUfgFzv5s17+TkyKDfnI=
 github.com/GoogleCloudPlatform/testgrid v0.0.123/go.mod h1:4Ojwl21NNySkM1rG8hT9K2bugPX9fIrc2hC+GHegLR8=
-github.com/Huang-Wei/25-kubecon-jp v0.0.2 h1:igoT+hzjV/JwHsN0hyKOK+lXHpVeXJUj2Ge7x/mZrKc=
-github.com/Huang-Wei/25-kubecon-jp v0.0.2/go.mod h1:nGrbuJFhWsh0eHgdbReph9JNwcpM0fVhEQyNdaA9gbQ=
+github.com/Huang-Wei/25-kubecon-jp v0.0.4 h1:0RC21R5/EFG5YvHSP9LBHvYdy1F/Bnp3YFMY8sRFxIc=
+github.com/Huang-Wei/25-kubecon-jp v0.0.4/go.mod h1:nGrbuJFhWsh0eHgdbReph9JNwcpM0fVhEQyNdaA9gbQ=
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
 github.com/PuerkitoBio/purell v1.0.0/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20160726150825-5bd2802263f2/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
