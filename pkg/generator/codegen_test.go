@@ -10,11 +10,11 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/Huang-Wei/25-kubecon-jp-codegen/pkg/internal"
+	"github.com/Huang-Wei/25-kubecon-jp/go/generated/common/selector"
+	"github.com/Huang-Wei/25-kubecon-jp/go/generated/common/selector/key"
+	"github.com/Huang-Wei/25-kubecon-jp/go/generated/common/selector/operator"
 	"github.com/Huang-Wei/25-kubecon-jp/go/generated/infra/account"
 	"github.com/Huang-Wei/25-kubecon-jp/go/generated/tenant/resource"
-	"github.com/Huang-Wei/25-kubecon-jp/go/generated/tenant/selector"
-	"github.com/Huang-Wei/25-kubecon-jp/go/generated/tenant/selector/key"
-	"github.com/Huang-Wei/25-kubecon-jp/go/generated/tenant/selector/operator"
 )
 
 func TestFanOutArtifacts(t *testing.T) {
@@ -95,17 +95,17 @@ namePrefix: "tenant-X-aws-1234-us-east-1-"
 				{
 					AccountID:     "1234",
 					CloudProvider: "aws",
-					Tags: map[string]string{
-						string(key.CloudProvider): "aws",
-						string(key.Env):           "prod",
+					Tags: map[key.Key]string{
+						key.CloudProvider: "aws",
+						key.Env:           "prod",
 					},
 				},
 				{
 					AccountID:     "senzu-bean",
 					CloudProvider: "gcp",
-					Tags: map[string]string{
-						string(key.CloudProvider): "gcp",
-						string(key.Env):           "dev",
+					Tags: map[key.Key]string{
+						key.CloudProvider: "gcp",
+						key.Env:           "dev",
 					},
 				},
 			},

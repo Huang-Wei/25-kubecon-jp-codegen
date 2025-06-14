@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/afero"
 
 	"github.com/Huang-Wei/25-kubecon-jp-codegen/pkg/internal"
+	"github.com/Huang-Wei/25-kubecon-jp/go/generated/common/selector"
 	"github.com/Huang-Wei/25-kubecon-jp/go/generated/tenant/resource"
-	"github.com/Huang-Wei/25-kubecon-jp/go/generated/tenant/selector"
 )
 
 // pkl-gen-go evaluates an empty Listing as a non-nil slice instead of nil.
