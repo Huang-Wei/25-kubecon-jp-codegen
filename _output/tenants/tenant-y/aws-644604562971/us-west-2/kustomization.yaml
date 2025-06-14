@@ -3,4 +3,4 @@ resources:
 - bucket-y-temp.yaml
 - bucket-y.yaml
 
-namePrefix: "tenant-Y-aws-644604562971-us-west-2-"
+namePrefix: "tenant-y-aws-644604562971-us-west-2-"
