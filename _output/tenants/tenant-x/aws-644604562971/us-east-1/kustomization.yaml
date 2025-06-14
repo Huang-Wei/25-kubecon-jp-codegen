@@ -2,4 +2,4 @@
 resources:
 - bucket-x.yaml
 
-namePrefix: "tenant-X-aws-644604562971-us-east-1-"
+namePrefix: "tenant-x-aws-644604562971-us-east-1-"
